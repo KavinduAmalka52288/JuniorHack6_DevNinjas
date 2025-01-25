@@ -9,7 +9,6 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         HostelService hostelService = new HostelService();
         StudentService studentService = new StudentService();
-        RoomService roomService = new RoomService();
         AllocationService allocationService = new AllocationService();
 
         while (true) {
