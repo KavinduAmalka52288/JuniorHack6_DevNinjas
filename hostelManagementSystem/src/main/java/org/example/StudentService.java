@@ -7,12 +7,12 @@ import java.util.Scanner;
 
 public class StudentService {
     public void manageStudents(Scanner scanner) {
-        System.out.println("\n--- Manage Students ---");
-        System.out.println("1. Add Student");
-        System.out.println("2. View Students");
-        System.out.println("3. Update Student");
-        System.out.println("4. Delete Student");
-        System.out.print("Enter your choice: ");
+        System.out.println("\n Student Management.......");
+        System.out.println("[1] Add Student");
+        System.out.println("[2] Remove Students");
+        System.out.println("[3] Update Student");
+        System.out.println("[4] View Student Details");
+        System.out.println("[0] Main menu");
         int choice = scanner.nextInt();
 
         switch (choice) {
@@ -24,42 +24,50 @@ public class StudentService {
     }
 
     private void addStudent(Scanner scanner) {
-        System.out.print("Enter Student Name: ");
-        scanner.nextLine(); // Consume newline
+        System.out.println("Add a student... ");
+        System.out.print("Add the Name: ");
+        scanner.nextLine();
         String name = scanner.nextLine();
-        System.out.print("Enter Email: ");
-        String email = scanner.nextLine();
-        System.out.print("Enter Phone: ");
-        String phone = scanner.nextLine();
+        System.out.print("Add the studentId(eg: abc001): ");
+        String studentId = scanner.nextLine();
+        System.out.print("Add the age: ");
+        Integer age = scanner.nextInt();
+        System.out.print("Add the department: ");
+        String department = scanner.nextLine();
+
 
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String sql = "INSERT INTO Students (student_name, email, phone) VALUES (?, ?, ?)";
+            String sql = "INSERT INTO Students (student_id, name, age, department) VALUES (?, ?, ?, ?)";
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, name);
-            pstmt.setString(2, email);
-            pstmt.setString(3, phone);
+            pstmt.setString(1, studentId);
+            pstmt.setString(2, name);
+            pstmt.setInt(3, age);
+            pstmt.setString(2, department);
+
             pstmt.executeUpdate();
-            System.out.println("Student added successfully.");
+            System.out.println("Successfully added the record of the student Id :"+studentId);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
-    private void viewStudents() {
+    private void viewStudent(Scanner scanner) {
+        System.out.println("\n view student details...");
+        System.out.print("Enter the student Id : ");
+        scanner.nextLine();
+        String Id = scanner.nextLine();
         try (Connection conn = DatabaseConnection.getConnection()) {
-            String sql = "SELECT * FROM Students";
+            String sql = "SELECT * FROM Students WHERE student_id=Id";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
 
-            System.out.println("\n--- Student List ---");
+
             while (rs.next()) {
-                System.out.println("Student ID: " + rs.getInt("student_id"));
+                System.out.println("ID: " + rs.getInt("student_id"));
                 System.out.println("Name: " + rs.getString("student_name"));
-                System.out.println("Email: " + rs.getString("email"));
-                System.out.println("Phone: " + rs.getString("phone"));
-                System.out.println("Hostel ID: " + rs.getInt("hostel_id"));
-                System.out.println("Room ID: " + rs.getInt("room_id"));
-                System.out.println("-----------------------");
+                System.out.println("Age: " + rs.getInt("age"));
+                System.out.println("Department: " + rs.getString("department"));
+
             }
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
@@ -67,42 +75,54 @@ public class StudentService {
     }
 
     private void updateStudent(Scanner scanner) {
-        System.out.print("Enter Student ID to update: ");
-        int studentId = scanner.nextInt();
-        System.out.print("Enter New Name (leave blank to keep unchanged): ");
-        scanner.nextLine(); // Consume newline
-        String newName = scanner.nextLine();
-        System.out.print("Enter New Email (leave blank to keep unchanged): ");
-        String newEmail = scanner.nextLine();
-        System.out.print("Enter New Phone (leave blank to keep unchanged): ");
-        String newPhone = scanner.nextLine();
+        System.out.println("\n Update Student...");
+        System.out.print("Student Id : ");
+        scanner.nextLine();
+        String Id = scanner.nextLine();
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            String sql = "SELECT * FROM Students WHERE student_id=Id";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery();
+
+
+            while (rs.next()) {
+                System.out.println("ID: " + rs.getInt("student_id"));
+                System.out.println("Name: " + rs.getString("student_name"));
+                System.out.println("Age: " + rs.getInt("age"));
+                System.out.println("Department: " + rs.getString("department"));
+
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+
+        System.out.println("Enter the attribute to update [1-name, 2-age , 3- department");
+        Scanner scanner1 = new Scanner(System.in);
+        Integer att = scanner1.nextInt();
 
         try (Connection conn = DatabaseConnection.getConnection()) {
             StringBuilder sql = new StringBuilder("UPDATE Students SET ");
             boolean needsComma = false;
 
-            if (!newName.isBlank()) {
-                sql.append("student_name = ?");
+        switch (att){
+            case 1 :
+                sql.append("name = ?");
                 needsComma = true;
-            }
-            if (!newEmail.isBlank()) {
-                if (needsComma) sql.append(", ");
-                sql.append("email = ?");
+            case 2 :
+                sql.append("age = ?");
                 needsComma = true;
-            }
-            if (!newPhone.isBlank()) {
-                if (needsComma) sql.append(", ");
-                sql.append("phone = ?");
-            }
+
+            case 3 :
+                sql.append("department = ?");
+                needsComma = true;
+
+        }
             sql.append(" WHERE student_id = ?");
+
 
             PreparedStatement pstmt = conn.prepareStatement(sql.toString());
             int paramIndex = 1;
 
-            if (!newName.isBlank()) pstmt.setString(paramIndex++, newName);
-            if (!newEmail.isBlank()) pstmt.setString(paramIndex++, newEmail);
-            if (!newPhone.isBlank()) pstmt.setString(paramIndex++, newPhone);
-            pstmt.setInt(paramIndex, studentId);
 
             int rowsUpdated = pstmt.executeUpdate();
             if (rowsUpdated > 0) {
@@ -115,23 +135,5 @@ public class StudentService {
         }
     }
 
-    private void deleteStudent(Scanner scanner) {
-        System.out.print("Enter Student ID to delete: ");
-        int studentId = scanner.nextInt();
 
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            String sql = "DELETE FROM Students WHERE student_id = ?";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, studentId);
-
-            int rowsDeleted = pstmt.executeUpdate();
-            if (rowsDeleted > 0) {
-                System.out.println("Student deleted successfully.");
-            } else {
-                System.out.println("No student found with the provided ID.");
-            }
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
 }
