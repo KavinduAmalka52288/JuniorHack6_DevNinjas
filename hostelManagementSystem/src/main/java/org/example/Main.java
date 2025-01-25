@@ -1,48 +1,37 @@
 package org.example;
 
-import java.security.PublicKey;
+import org.example.HostelService;
+
 import java.util.Scanner;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        HostelService hostelService = new HostelService();
+        StudentService studentService = new StudentService();
+        RoomService roomService = new RoomService();
+        AllocationService allocationService = new AllocationService();
 
+        while (true) {
+            System.out.println("\n----------------------------------------------- Welcome to the Hostel Management System ---------------------------------");
+            System.out.println("\n                               ---------------------------ABC university----------------------");
+            System.out.println("[1] Manage Hostels");
+            System.out.println("[2] Manage Students");
+            System.out.println("[3] Manage Student Allocations");
+            System.out.println("[0] Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
 
-        System.out.println("------------------------------------- Welcome to the Hostel Management System---------------------");
-        System.out.println("                               ----------------ABC university------------------------------");
-
-
-
-        System.out.println("Please enter the number of the action you want to proceed...");
-
-        System.out.println("[1] manage Hostels");
-        System.out.println("[2] manage students");
-        System.out.println("[3] manage Student Allocation");
-        System.out.println("[0] Exit");
-
-
-        Scanner input = new Scanner(System.in);
-        Integer input1 = input.nextInt();
-
-            switch (input1){
-                case 1 :
-                    System.out.println("Hosetl Management....");
-
-
-                    break;
-
-                case 2:
-                    System.out.println("Student Management");
-
-
-
+            switch (choice) {
+                case 1 -> hostelService.manageHostels(scanner);
+                case 2 -> studentService.manageStudents(scanner);
+                case 3 -> allocationService.manageAllocations(scanner);
+                case 0 -> {
+                    System.out.println("Exiting... Thank you!");
+                    System.exit(0);
+                }
+                default -> System.out.println("Invalid choice. Try again.");
             }
-
-
-
-
         }
-
-        }
-
+    }
+}
